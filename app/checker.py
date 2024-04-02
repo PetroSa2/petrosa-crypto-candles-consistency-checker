@@ -31,101 +31,56 @@ uni_id = str(random.randint(1000, 9999))
 
 
 class PETROSAdbchecker(object):
-    
     @tracer.start_as_current_span(name="init")
-    class Checker:
-        def __init__(self) -> None:
-            """
-            Initializes a new instance of the Checker class.
-
-            This method creates various consistency counters for tracking items found, wrong count,
-            exhausted tries, and successful checks at different time intervals.
-
-            Parameters:
-            None
-
-            Returns:
-            None
-            """
-            self.consistency_counter_found = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name")
-                + ".found.count."
-                + uni_id,
-                unit="1",
-                description="Items found count",
-            )
-            self.consistency_counter_m5 = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m5." + uni_id,
-                unit="1",
-                description="Items found m5",
-            )
-            self.consistency_counter_m15 = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m15." + uni_id,
-                unit="1",
-                description="Items found m15",
-            )
-            self.consistency_counter_m30 = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m30." + uni_id,
-                unit="1",
-                description="Items found m30",
-            )
-            self.consistency_counter_h1 = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.h1." + uni_id,
-                unit="1",
-                description="Items found h1",
-            )
-            self.consistency_counter_wrong_count = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name")
-                + ".wrong.count."
-                + uni_id,
-                unit="1",
-                description="consistency_counter_wrong_count",
-            )
-            self.consistency_counter_exhausted = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".exh.tries." + uni_id,
-                unit="1",
-                description="consistency_counter_exhausted",
-            )
-            self.consistency_counter_ok = meter.create_counter(
-                os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".ok." + uni_id,
-                unit="1",
-                description="consistency_counter_ok",
-            )
+    def __init__(self) -> None:
+        self.consistency_counter_found = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name")
+            + ".found.count."
+            + uni_id,
+            unit="1",
+            description="Items found count",
+        )
+        self.consistency_counter_m5 = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m5." + uni_id,
+            unit="1",
+            description="Items found m5",
+        )
+        self.consistency_counter_m15 = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m15." + uni_id,
+            unit="1",
+            description="Items found m15",
+        )
+        self.consistency_counter_m30 = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m30." + uni_id,
+            unit="1",
+            description="Items found m30",
+        )
+        self.consistency_counter_h1 = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.h1." + uni_id,
+            unit="1",
+            description="Items found h1",
+        )
+        self.consistency_counter_wrong_count = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name")
+            + ".wrong.count."
+            + uni_id,
+            unit="1",
+            description="consistency_counter_wrong_count",
+        )
+        self.consistency_counter_exhausted = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".exh.tries." + uni_id,
+            unit="1",
+            description="consistency_counter_exhausted",
+        )
+        self.consistency_counter_ok = meter.create_counter(
+            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".ok." + uni_id,
+            unit="1",
+            description="consistency_counter_ok",
+        )
 
     @tracer.start_as_current_span(name="check_db")
     @retry.retry(tries=5, backoff=2, logger=logging.getLogger(__name__))
     def check_db(self):
-        """
-        Check the database for consistency.
-
-        This method retrieves a list of records from the 'backfill' table that meet certain criteria,
-        and then performs consistency checks on each record. The checks involve counting the number
-        of candles for a specific symbol and period within a given day, and comparing it to an expected
-        count. If the counts match, the record is updated to indicate that it is consistent. If the counts
-        do not match, the record is flagged as inconsistent and the checking_times counter is incremented.
-
-        Returns:
-            None
-        """
-        logging.info("Checking DB")
-        found_list = sql.run_generic_sql(
-            "select * from backfill where checked = 0 and checking_times < "
-            + str(MAX_CHECKING_TIMES)
-            + " and day < '"
-            + datetime.datetime.today().strftime("%Y-%m-%d")
-            + "' ORDER BY RAND() limit "
-            + str(MAX_CHECKING_BATCH_SIZE)
-        )
-
-        # Rest of the code...
-    def check_db(self):
-        """
-        Checks the database for consistency by querying the 'backfill' table and comparing the number of candles
-        for each symbol and period with the expected count. Updates the 'backfill' table accordingly.
-
-        Returns:
-            None
-        """
         logging.info("Checking DB")
         found_list = sql.run_generic_sql(
             "select * from backfill where checked = 0 and checking_times < "
@@ -151,7 +106,7 @@ class PETROSAdbchecker(object):
                 + "' ORDER BY RAND() limit "
                 + str(MAX_CHECKING_BATCH_SIZE)
             )
-            
+
             found_list = random.sample(found_list, len(found_list))
 
         if len(found_list) == 0:
@@ -243,7 +198,7 @@ class PETROSAdbchecker(object):
                     "checking_times" in found
                     and found["checking_times"] < MAX_CHECKING_TIMES
                 ):
-                    logging.info('I found it but will increase cheking_times')
+                    logging.info("I found it but will increase cheking_times")
 
                     ck_times = found["checking_times"] + 1
                     logging.info("checking_times: " + str(ck_times))
