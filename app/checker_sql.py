@@ -1,84 +1,60 @@
 import datetime
 import logging
-import os
 import random
 import time
 import retry
-from opentelemetry import trace
-
-from opentelemetry import metrics
 from petrosa.database import sql
+from app.variables import METER, SVC, MAX_CHECKING_TIMES, DEFAULT_CHECKING_BATCH_SIZE, MAX_CHECKING_BATCH_SIZE, TRACER, UNI_ID
 
-tracer = trace.get_tracer(
-    os.getenv("OTEL_SERVICE_NAME", "no-service-name"), os.getenv("VERSION", "0.0.0")
-)
-
-
-if os.getenv("MARKET", "crypto") == "crypto":
-    os.environ["MYSQL_USER"] = os.getenv("MYSQL_CRYPTO_USER")
-    os.environ["MYSQL_PASSWORD"] = os.getenv("MYSQL_CRYPTO_PASSWORD")
-    os.environ["MYSQL_SERVER"] = os.getenv("MYSQL_CRYPTO_SERVER")
-    os.environ["MYSQL_DB"] = os.getenv("MYSQL_CRYPTO_DB")
-
-
-MAX_CHECKING_TIMES = 1000
-DEFAULT_CHECKING_BATCH_SIZE = 1000
-MAX_CHECKING_BATCH_SIZE = 3000
-
-meter = metrics.get_meter("global.meter")
-
-uni_id = str(random.randint(1000, 9999))
 
 
 class PETROSAdbchecker(object):
-    @tracer.start_as_current_span(name="init")
+    @TRACER.start_as_current_span(name="init")
     def __init__(self) -> None:
-        self.consistency_counter_found = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name")
-            + ".found.count."
-            + uni_id,
+        self.consistency_counter_found = METER.create_counter(
+            SVC + ".found.count."
+            + UNI_ID,
             unit="1",
             description="Items found count",
         )
-        self.consistency_counter_m5 = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m5." + uni_id,
+        self.consistency_counter_m5 = METER.create_counter(
+            SVC + ".found.m5." + UNI_ID,
             unit="1",
             description="Items found m5",
         )
-        self.consistency_counter_m15 = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m15." + uni_id,
+        self.consistency_counter_m15 = METER.create_counter(
+            SVC + ".found.m15." + UNI_ID,
             unit="1",
             description="Items found m15",
         )
-        self.consistency_counter_m30 = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.m30." + uni_id,
+        self.consistency_counter_m30 = METER.create_counter(
+            SVC + ".found.m30." + UNI_ID,
             unit="1",
             description="Items found m30",
         )
-        self.consistency_counter_h1 = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".found.h1." + uni_id,
+        self.consistency_counter_h1 = METER.create_counter(
+            SVC + ".found.h1." + UNI_ID,
             unit="1",
             description="Items found h1",
         )
-        self.consistency_counter_wrong_count = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name")
-            + ".wrong.count."
-            + uni_id,
+        self.consistency_counter_wrong_count = METER.create_counter(
+            SVC             + ".wrong.count."
+            + UNI_ID,
             unit="1",
             description="consistency_counter_wrong_count",
         )
-        self.consistency_counter_exhausted = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".exh.tries." + uni_id,
+        self.consistency_counter_exhausted = METER.create_counter(
+            SVC + ".exh.tries." + UNI_ID,
             unit="1",
             description="consistency_counter_exhausted",
         )
-        self.consistency_counter_ok = meter.create_counter(
-            os.getenv("OTEL_SERVICE_NAME", "no-service-name") + ".ok." + uni_id,
+        self.consistency_counter_ok = METER.create_counter(
+            SVC + ".ok." + UNI_ID,
             unit="1",
             description="consistency_counter_ok",
         )
 
-    @tracer.start_as_current_span(name="check_db")
+    @TRACER.start_as_current_span(name="check_db")
     @retry.retry(tries=5, backoff=2, logger=logging.getLogger(__name__))
     def check_db(self):
         logging.info("Checking DB")

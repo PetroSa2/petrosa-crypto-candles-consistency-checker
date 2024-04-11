@@ -9,19 +9,33 @@ Date: 2023-08-10
 import logging
 from datetime import datetime
 
-from app import checker
+from app import checker_sql
+from app import checker_mg
 
-logging.basicConfig(level=logging.INFO)
+from app import variables
+
+logging.basicConfig(level=variables.LOG_LEVEL)
 
 start_datetime = datetime.utcnow()
 
 logging.warning('Starting the checker')
-checker_instance = checker.PETROSAdbchecker()
+
+if variables.ENABLE_SQL:
+    checker_sql = checker_sql.PETROSAdbchecker()
+    
+if variables.ENABLE_MG:
+    checker_mg = checker_mg.PETROSAdbchecker()
 
 
 while True:
     try:
-        checker_instance.check_db()
+
+        if variables.ENABLE_SQL:
+            checker_sql.check_db()
+            
+        if variables.ENABLE_MG:
+            checker_mg.check_db()
+
     except Exception as e:
         logging.error(e)
         pass
