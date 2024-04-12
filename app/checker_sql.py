@@ -4,9 +4,16 @@ import random
 import time
 import retry
 from petrosa.database import sql
-from app.variables import METER, SVC, MAX_CHECKING_TIMES, DEFAULT_CHECKING_BATCH_SIZE, MAX_CHECKING_BATCH_SIZE, TRACER, UNI_ID
 
-
+from app.variables import (
+    METER,
+    SVC,
+    MAX_CHECKING_TIMES,
+    DEFAULT_CHECKING_BATCH_SIZE,
+    MAX_CHECKING_BATCH_SIZE,
+    TRACER,
+    UNI_ID,
+)
 
 class PETROSAdbchecker(object):
     @TRACER.start_as_current_span(name="init")
@@ -71,7 +78,7 @@ class PETROSAdbchecker(object):
             found_list = random.sample(found_list, DEFAULT_CHECKING_BATCH_SIZE)
             self.consistency_counter_found.add(len(found_list))
         else:
-            logging.info(
+            logging.debug(
                 "we got less then DEFAULT_CHECKING_BATCH_SIZE: " + str(len(found_list))
             )
             found_list = sql.run_generic_sql(
@@ -86,7 +93,7 @@ class PETROSAdbchecker(object):
             found_list = random.sample(found_list, len(found_list))
 
         if len(found_list) == 0:
-            logging.info("Found nothin, suspicious. Waiting and then 333")
+            logging.debug("Found nothin, suspicious. Waiting and then 333")
             time.sleep(10)
 
             found_list = sql.run_generic_sql(
@@ -146,21 +153,21 @@ class PETROSAdbchecker(object):
                     + str(found["id"])
                 )
 
-                logging.info("that one is ok.")
+                logging.debug("that one is ok.")
                 self.consistency_counter_ok.add(1)
 
             else:
                 msg = "Thats Wrong, found this much: " + str(candles_found)
-                logging.info(msg)
-                logging.info(found)
+                logging.debug(msg)
+                logging.debug(found)
                 self.consistency_counter_wrong_count.add(1)
 
                 if (
                     "checking_times" in found
                     and found["checking_times"] >= MAX_CHECKING_TIMES
                 ):
-                    logging.info("Exhausted tentatives")
-                    logging.info(found)
+                    logging.debug("Exhausted tentatives")
+                    logging.debug(found)
                     self.consistency_counter_exhausted.add(1)
 
                     pass
@@ -174,10 +181,10 @@ class PETROSAdbchecker(object):
                     "checking_times" in found
                     and found["checking_times"] < MAX_CHECKING_TIMES
                 ):
-                    logging.info("I found it but will increase cheking_times")
+                    logging.debug("I found it but will increase cheking_times")
 
                     ck_times = found["checking_times"] + 1
-                    logging.info("checking_times: " + str(ck_times))
+                    logging.debug("checking_times: " + str(ck_times))
                     sql.run_generic_sql(
                         "update backfill set state = 0, checked = 0, checking_times = "
                         + str(ck_times)
