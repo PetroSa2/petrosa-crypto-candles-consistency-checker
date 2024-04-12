@@ -64,7 +64,7 @@ class PETROSAdbchecker(object):
     @TRACER.start_as_current_span(name="check_db")
     @retry.retry(tries=5, backoff=2, logger=logging.getLogger(__name__))
     def check_db(self):
-        logging.info("Checking DB")
+        logging.debug("Checking DB")
         found_list = sql.run_generic_sql(
             "select * from backfill where checked = 0 and checking_times < "
             + str(MAX_CHECKING_TIMES)
