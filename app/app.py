@@ -8,6 +8,7 @@ Date: 2023-08-10
 
 import logging
 from datetime import datetime
+import threading
 
 from app import checker_sql
 from app import checker_mg
@@ -22,20 +23,28 @@ logging.warning('Starting the checker')
 
 if variables.ENABLE_SQL:
     checker_sql = checker_sql.PETROSAdbchecker()
-    
+    threading.Thread(target=checker_sql.run_forever, name="th_checker_sql").start()
+
+
 if variables.ENABLE_MG:
     checker_mg = checker_mg.PETROSAdbchecker()
+    threading.Thread(target=checker_mg.run_forever, name="th_checker_mg").start()
 
 
 while True:
     try:
 
         if variables.ENABLE_SQL:
-            checker_sql.check_db()
-            
-        if variables.ENABLE_MG:
-            checker_mg.check_db()
+            if not threading.Thread(name="th_checker_sql").is_alive():
+                threading.Thread(
+                    target=checker_sql.run_forever, name="th_checker_sql"
+                ).start()
 
+        if variables.ENABLE_MG:
+            if not threading.Thread(name="th_checker_mg").is_alive():
+                threading.Thread(
+                    target=checker_mg.run_forever, name="th_checker_sql"
+                ).start()
     except Exception as e:
         logging.error(e)
         pass

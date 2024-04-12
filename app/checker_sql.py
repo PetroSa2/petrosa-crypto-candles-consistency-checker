@@ -19,33 +19,33 @@ class PETROSAdbchecker(object):
     @TRACER.start_as_current_span(name="init")
     def __init__(self) -> None:
         self.consistency_counter_found = METER.create_counter(
-            SVC + ".found.count."
+            SVC + ".sql.found.count."
             + UNI_ID,
             unit="1",
             description="Items found count",
         )
         self.consistency_counter_m5 = METER.create_counter(
-            SVC + ".found.m5." + UNI_ID,
+            SVC + ".sql.found.m5." + UNI_ID,
             unit="1",
             description="Items found m5",
         )
         self.consistency_counter_m15 = METER.create_counter(
-            SVC + ".found.m15." + UNI_ID,
+            SVC + ".sql.found.m15." + UNI_ID,
             unit="1",
             description="Items found m15",
         )
         self.consistency_counter_m30 = METER.create_counter(
-            SVC + ".found.m30." + UNI_ID,
+            SVC + ".sql.found.m30." + UNI_ID,
             unit="1",
             description="Items found m30",
         )
         self.consistency_counter_h1 = METER.create_counter(
-            SVC + ".found.h1." + UNI_ID,
+            SVC + ".sql.found.h1." + UNI_ID,
             unit="1",
             description="Items found h1",
         )
         self.consistency_counter_wrong_count = METER.create_counter(
-            SVC             + ".wrong.count."
+            SVC             + ".sql.wrong.count."
             + UNI_ID,
             unit="1",
             description="consistency_counter_wrong_count",
@@ -56,7 +56,7 @@ class PETROSAdbchecker(object):
             description="consistency_counter_exhausted",
         )
         self.consistency_counter_ok = METER.create_counter(
-            SVC + ".ok." + UNI_ID,
+            SVC + ".sql.ok." + UNI_ID,
             unit="1",
             description="consistency_counter_ok",
         )
@@ -191,3 +191,12 @@ class PETROSAdbchecker(object):
                         + ", last_checked = now() where id = "
                         + str(found["id"])
                     )
+
+    @TRACER.start_as_current_span(name="run_forever")
+    def run_forever(self):
+        while True:
+            try:
+                self.check_db()
+            except Exception as e:
+                logging.error(e)
+                pass

@@ -23,28 +23,28 @@ class PETROSAdbchecker(object):
         self.backfill_col = self.client_mg.petrosa_crypto["backfill"]
         self.consistency_counter_found = METER.create_counter(
             SVC
-            + ".found.count."
+            + ".mg.found.count."
             + UNI_ID,
             unit="1",
             description="Items found count",
         )
         self.consistency_counter_m5 = METER.create_counter(
-            SVC + ".found.m5." + UNI_ID,
+            SVC + ".mg.found.m5." + UNI_ID,
             unit="1",
             description="Items found m5",
         )
         self.consistency_counter_m15 = METER.create_counter(
-            SVC + ".found.m15." + UNI_ID,
+            SVC + ".mg.found.m15." + UNI_ID,
             unit="1",
             description="Items found m15",
         )
         self.consistency_counter_m30 = METER.create_counter(
-            SVC + ".found.m30." + UNI_ID,
+            SVC + ".mg.found.m30." + UNI_ID,
             unit="1",
             description="Items found m30",
         )
         self.consistency_counter_h1 = METER.create_counter(
-            SVC + ".found.h1." + UNI_ID,
+            SVC + ".mg.found.h1." + UNI_ID,
             unit="1",
             description="Items found h1",
         )
@@ -242,3 +242,12 @@ class PETROSAdbchecker(object):
                             }
                         },
                     )
+
+    @TRACER.start_as_current_span(name="run_forever")
+    def run_forever(self):
+        while True:
+            try:
+                self.check_db()
+            except Exception as e:
+                logging.error(e)
+                pass

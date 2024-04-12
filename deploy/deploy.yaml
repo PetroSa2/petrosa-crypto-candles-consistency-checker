@@ -26,13 +26,13 @@ spec:
                 - worker 
       containers:
       - name: petrosa-crypto-candles-consistency-checker
-        image: yurisa2/petrosa-crypto-candles-consistency-checker:v0.0.77
+        image: yurisa2/petrosa-crypto-candles-consistency-checker:v0.0.78
         imagePullPolicy: Always
         env:
           - name: OTEL_SERVICE_NAME
             value: "petrosa-crypto-candles-consistency-checker"
           - name: VERSION
-            value: "v0.0.77"
+            value: "v0.0.78"
           - name: MARKET
             value: "crypto"
         envFrom:
