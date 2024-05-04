@@ -15,24 +15,15 @@ spec:
       labels:
         app: petrosa-crypto-candles-consistency-checker
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: petrosa.class
-                operator: In
-                values:
-                - worker 
       containers:
       - name: petrosa-crypto-candles-consistency-checker
-        image: yurisa2/petrosa-crypto-candles-consistency-checker:v0.0.82
+        image: yurisa2/petrosa-crypto-candles-consistency-checker:v0.0.83
         imagePullPolicy: Always
         env:
           - name: OTEL_SERVICE_NAME
             value: "petrosa-crypto-candles-consistency-checker"
           - name: VERSION
-            value: "v0.0.82"
+            value: "v0.0.83"
           - name: MARKET
             value: "crypto"
         envFrom:

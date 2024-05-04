@@ -61,6 +61,7 @@ class PETROSAdbchecker(object):
             description="consistency_counter_ok",
         )
 
+
     @TRACER.start_as_current_span(name="check_db")
     @retry.retry(tries=5, backoff=2, logger=logging.getLogger(__name__))
     def check_db(self):
@@ -205,6 +206,7 @@ class PETROSAdbchecker(object):
                         + ", last_checked = now() where id = "
                         + str(found["id"])
                     )
+
 
     @TRACER.start_as_current_span(name="run_forever")
     def run_forever(self):

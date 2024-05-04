@@ -25,7 +25,6 @@ if os.getenv("MARKET", "crypto") == "crypto":
     os.environ["MYSQL_SERVER"] = os.getenv("MYSQL_CRYPTO_SERVER")
     os.environ["MYSQL_DB"] = os.getenv("MYSQL_CRYPTO_DB")
 
-
 MAX_CHECKING_TIMES = 1000
 DEFAULT_CHECKING_BATCH_SIZE = 1000
 MAX_CHECKING_BATCH_SIZE = 3000
