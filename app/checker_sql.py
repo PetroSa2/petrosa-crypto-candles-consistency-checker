@@ -64,6 +64,20 @@ class PETROSAdbchecker(object):
     @TRACER.start_as_current_span(name="check_db")
     @retry.retry(tries=5, backoff=2, logger=logging.getLogger(__name__))
     def check_db(self):
+        """
+        Check the database for consistency.
+
+        This method retrieves a list of records from the 'backfill' table that meet certain criteria,
+        such as being unchecked, having a limited number of checking times, and having a day earlier than today.
+        It then performs consistency checks on each record by counting the number of candles in the corresponding
+        table for the specified ticker and day. If the count matches the expected count based on the period,
+        the record is marked as checked and the consistency counter is incremented. Otherwise, the record is
+        marked as unchecked and the checking times is increased. If the checking times exceeds the maximum
+        allowed value, the record is marked as exhausted.
+
+        Returns:
+            None
+        """
         logging.debug("Checking DB")
         found_list = sql.run_generic_sql(
             "select * from backfill where checked = 0 and checking_times < "
@@ -194,9 +208,18 @@ class PETROSAdbchecker(object):
 
     @TRACER.start_as_current_span(name="run_forever")
     def run_forever(self):
-        while True:
-            try:
-                self.check_db()
-            except Exception as e:
-                logging.error(e)
-                pass
+            """
+            Continuously runs the consistency checker.
+
+            This method runs an infinite loop that repeatedly calls the `check_db` method to perform consistency checks on the database.
+            If an exception occurs during the check, it is logged and the loop continues.
+
+            Returns:
+                None
+            """
+            while True:
+                try:
+                    self.check_db()
+                except Exception as e:
+                    logging.error(e)
+                    pass
