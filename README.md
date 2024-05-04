@@ -24,7 +24,7 @@ The 'docker' job consists of the following steps:
 
 3. **Login to DockerHub:** This step uses the docker/login-action@v2 to log in to DockerHub. The username and password for DockerHub are stored as secrets in the GitHub repository.
 
-4. **Build and push:** This step uses the docker/build-push-action@v3 to build the Docker image and push it to DockerHub. The image is tagged as 'yurisa2/petrosa-crypto-candles-consistency-checker:v0.0.83'.
+4. **Build and push:** This step uses the docker/build-push-action@v3 to build the Docker image and push it to DockerHub. The image is tagged as 'yurisa2/petrosa-crypto-candles-consistency-checker:v0.0.84'.
 
 ## Secrets
 
