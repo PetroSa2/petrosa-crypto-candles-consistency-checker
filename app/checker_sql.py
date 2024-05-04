@@ -220,6 +220,7 @@ class PETROSAdbchecker(object):
             while True:
                 try:
                     self.check_db()
+                    time.sleep(2)
                 except Exception as e:
                     logging.error(e)
                     pass
