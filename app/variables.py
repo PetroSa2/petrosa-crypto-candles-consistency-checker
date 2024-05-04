@@ -6,8 +6,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ENABLE_MG = bool(os.getenv("ENABLE_MG", 1))
-ENABLE_SQL = bool(os.getenv("ENABLE_SQL", 1))
+CONSISTENCY_CHECKER_ENABLE_MG = bool(os.getenv("CONSISTENCY_CHECKER_ENABLE_MG", 0))
+CONSISTENCY_CHECKER_ENABLE_SQL = bool(os.getenv("CONSISTENCY_CHECKER_ENABLE_SQL", 1))
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
