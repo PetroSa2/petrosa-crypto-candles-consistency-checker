@@ -251,3 +251,5 @@ class PETROSAdbchecker(object):
             except Exception as e:
                 logging.error(e)
                 pass
+            time.sleep(0.1)
+
