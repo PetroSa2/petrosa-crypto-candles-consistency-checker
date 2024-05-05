@@ -9,6 +9,7 @@ Date: 2023-08-10
 import logging
 from datetime import datetime
 import threading
+import time
 
 from app import checker_sql
 from app import checker_mg
@@ -36,15 +37,19 @@ while True:
 
         if variables.CONSISTENCY_CHECKER_ENABLE_SQL:
             if not threading.Thread(name="th_checker_sql").is_alive():
+                logging.warning('Restarting the checker for SQL')
                 threading.Thread(
                     target=checker_sql.run_forever, name="th_checker_sql"
                 ).start()
 
         if variables.CONSISTENCY_CHECKER_ENABLE_MG:
             if not threading.Thread(name="th_checker_mg").is_alive():
+                logging.warning('Restarting the checker for MG')
                 threading.Thread(
                     target=checker_mg.run_forever, name="th_checker_sql"
                 ).start()
+                
+        time.sleep(variables.CHECKER_SLEEP_TIME)
     except Exception as e:
         logging.error(e)
         pass

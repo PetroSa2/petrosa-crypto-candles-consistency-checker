@@ -9,6 +9,8 @@ load_dotenv()
 CONSISTENCY_CHECKER_ENABLE_MG = bool(os.getenv("CONSISTENCY_CHECKER_ENABLE_MG", 0))
 CONSISTENCY_CHECKER_ENABLE_SQL = bool(os.getenv("CONSISTENCY_CHECKER_ENABLE_SQL", 1))
 
+CHECKER_SLEEP_TIME = int(os.getenv("CHECKER_SLEEP_TIME", 0.2))
+
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 TRACER = tracer = trace.get_tracer(
